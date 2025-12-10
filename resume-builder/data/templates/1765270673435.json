@@ -1,0 +1,73 @@
+{
+  "id": "1765270673435",
+  "name": "New Resume",
+  "lastUpdated": "2025-12-09T08:58:06.018Z",
+  "data": {
+    "header": {
+      "name": "First Last",
+      "phone": "123-456-7890",
+      "email": "email@example.com",
+      "linkedin": "linkedin.com/in/username",
+      "github": "github.com/username"
+    },
+    "education": [
+      {
+        "id": "1",
+        "school": "University Name",
+        "location": "City, State",
+        "degree": "Bachelor of Science in Computer Science",
+        "dates": "Aug. 2020 -- May 2024"
+      }
+    ],
+    "experience": [
+      {
+        "id": "1",
+        "company": "Company Name",
+        "location": "City, State",
+        "role": "Software Engineer Intern",
+        "dates": "May 2023 -- Aug. 2023",
+        "points": [
+          "Developed a full-stack web application using React and Node.js.",
+          "Optimized database queries, reducing load times by 30%.",
+          "Collaborated with a team of 4 engineers to deliver features on time."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "id": "1",
+        "name": "Project Name",
+        "technologies": "React, Node.js, MongoDB",
+        "dates": "June 2023 -- Present",
+        "points": [
+          "Designed and built a scalable platform for X.",
+          "Implemented authentication using JWT and OAuth."
+        ]
+      }
+    ],
+    "skills": {
+      "languages": "Java, Python, C++, JavaScript, SQL",
+      "frameworks": "React, Node.js, Spring Boot, Express",
+      "developerTools": "Git, Docker, Kubernetes, AWS, Linux",
+      "libraries": "Pandas, NumPy, Matplotlib"
+    },
+    "summary": "Results-oriented software engineer with expertise in full-stack development. Proven track record of delivering scalable web applications and optimizing system performance. Passionate about learning new technologies and solving complex problems.",
+    "achievements": [
+      {
+        "id": "1",
+        "title": "Hackathon Winner",
+        "date": "Nov. 2023",
+        "description": "Secured 1st place in the Global Tech Hackathon for creating an innovative AI solution."
+      }
+    ],
+    "certifications": [
+      {
+        "id": "1",
+        "name": "AWS Certified Solutions Architect",
+        "issuer": "Amazon Web Services",
+        "type": "Associate Level",
+        "date": "Sep. 2023"
+      }
+    ]
+  }
+}
