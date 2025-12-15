@@ -9,6 +9,13 @@ export const defaultResumeData: ResumeData = {
         github: "github.com/username",
         links: []
     },
+    settings: {
+        font: 'serif',
+        fontSize: '10pt',
+        margin: { top: 0.75, right: 0.75, bottom: 0.75, left: 0.75 },
+        paperSize: 'a4paper',
+        lineHeight: 1.5
+    },
     sections: [
         {
             id: "summary",
@@ -31,7 +38,8 @@ export const defaultResumeData: ResumeData = {
                         title: "University Name", // School
                         subtitle: "Bachelor of Science in Computer Science", // Degree
                         location: "City, State",
-                        date: "Aug. 2020 -- May 2024",
+                        dateFrom: "Aug. 2020",
+                        dateTo: "May 2024",
                         isVisible: true,
                     }
                 ]
@@ -107,7 +115,8 @@ export const defaultResumeData: ResumeData = {
                         title: "Hackathon Winner",
                         subtitle: "",
                         location: "",
-                        date: "Nov. 2023",
+                        dateFrom: "Nov. 2023",
+                        dateTo: "",
                         description: "Secured 1st place in the Global Tech Hackathon for creating an innovative AI solution.",
                         isVisible: true,
                     }
@@ -126,7 +135,8 @@ export const defaultResumeData: ResumeData = {
                         title: "AWS Certified Solutions Architect", // Name
                         subtitle: "Associate Level", // Type
                         location: "Amazon Web Services", // Issuer
-                        date: "Sep. 2023",
+                        dateFrom: "Sep. 2023",
+                        dateTo: "",
                         isVisible: true,
                     }
                 ]

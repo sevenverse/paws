@@ -20,81 +20,12 @@
       }
     ]
   },
-  "sections": [
-    {
-      "id": "70c51f53-f833-42ba-9228-2c54e8304cc2",
-      "type": "header",
-      "title": "Header",
-      "isVisible": true,
-      "content": {
-        "name": "Shyam V",
-        "phone": "",
-        "email": "shyam@mits.com",
-        "linkedin": "",
-        "github": "",
-        "links": []
-      }
-    },
-    {
-      "id": "3e5ede9f-1ff1-451a-ab8f-451cbf01c5b9",
-      "type": "standard-list",
-      "title": "Education",
-      "isVisible": true,
-      "content": {
-        "items": [
-          {
-            "id": "eec62cdd-20da-4944-8523-dafae415f2ad",
-            "title": "Govt College",
-            "subtitle": "Engg",
-            "location": "Koch",
-            "date": "",
-            "description": "Goo",
-            "isVisible": true
-          }
-        ]
-      }
-    },
-    {
-      "id": "summary",
-      "type": "long-text",
-      "title": "Professional Summary",
-      "isVisible": true,
-      "content": {
-        "text": ""
-      }
-    },
-    {
-      "id": "c43760b5-0024-4a32-b812-415adb9fb1c9",
-      "type": "grouped-list",
-      "title": "Skills",
-      "isVisible": true,
-      "content": {
-        "groups": [
-          {
-            "id": "0efa4028-6476-4187-9255-3b644b5ae542",
-            "category": "Skill1",
-            "items": [
-              {
-                "name": "Skill",
-                "isVisible": true
-              },
-              {
-                "name": "Skil",
-                "isVisible": true
-              },
-              {
-                "name": "Skill",
-                "isVisible": true
-              },
-              {
-                "name": "",
-                "isVisible": true
-              }
-            ],
-            "isVisible": true
-          }
-        ]
-      }
-    }
-  ]
+  "sections": [],
+  "settings": {
+    "font": "serif",
+    "fontSize": "10pt",
+    "margin": 0.75,
+    "paperSize": "letterpaper",
+    "headerAlign": "center"
+  }
 }

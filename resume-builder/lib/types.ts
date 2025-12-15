@@ -1,3 +1,11 @@
+export interface ResumeSettings {
+    font: 'serif' | 'sans' | 'mono' | 'cormorant' | 'charter' | 'fira' | 'roboto' | 'noto' | 'source';
+    fontSize: '10pt' | '11pt' | '12pt';
+    margin: number | { top: number; right: number; bottom: number; left: number }; // in inches
+    paperSize: 'a4paper' | 'letterpaper';
+    lineHeight?: number;
+}
+
 export interface ResumeData {
     header?: {
         name: string;
@@ -12,10 +20,11 @@ export interface ResumeData {
             isVisible: boolean;
         }>;
     };
+    settings?: ResumeSettings;
     sections: Section[];
 }
 
-export type SectionType = 'header' | 'long-text' | 'standard-list' | 'detailed-list' | 'grouped-list';
+export type SectionType = 'header' | 'header-name' | 'header-contact' | 'long-text' | 'standard-list' | 'detailed-list' | 'grouped-list';
 
 export interface Section {
     id: string;
@@ -51,7 +60,8 @@ export interface StandardListContent {
         id: string;
         title: string;       // School, Certification Name, Achievement Title
         subtitle: string;    // Degree, Issuer
-        date: string;        // Dates
+        dateFrom: string;    // Start Date
+        dateTo: string;      // End Date
         location: string;    // Location (optional)
         description?: string; // One-line description?
         isVisible: boolean;

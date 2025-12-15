@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ResumeData } from '@/lib/types';
+import { ResumeData, SectionType, Section, HeaderContent, LongTextContent, StandardListContent, DetailedListContent, GroupedListContent } from '@/lib/types';
 import { defaultResumeData } from '@/lib/defaults';
+import { getEmptyContent } from '@/lib/helpers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // import { HeaderForm } from '@/components/forms/HeaderForm';
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // import { ExperienceForm } from '@/components/forms/ExperienceForm';
 // import { ProjectsForm } from '@/components/forms/ProjectsForm';
 // import { SkillsForm } from '@/components/forms/SkillsForm';
-import { RefreshCw, FileText, Save, Check } from 'lucide-react';
+import { RefreshCw, FileText, Save, Check, Copy, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PopOutSectionWrapper } from '@/components/PopOutSectionWrapper';
 import {
@@ -31,7 +32,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableSection } from '@/components/SortableSection';
-import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+
 
 // Template Imports
 import { HeaderForm } from '@/components/templates/HeaderForm';
@@ -40,17 +41,10 @@ import { StandardListForm } from '@/components/templates/StandardListForm';
 import { DetailedListForm } from '@/components/templates/DetailedListForm';
 import { GroupedListForm } from '@/components/templates/GroupedListForm';
 
-import { Section, SectionType } from '@/lib/types';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+import { AddSectionDialog } from '@/components/AddSectionDialog';
+import { StyleToolbar } from '@/components/StyleToolbar';
 import React from 'react';
+import { LiveResumePreview } from '@/components/LiveResumePreview';
 
 export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
@@ -60,11 +54,27 @@ export default function Home() {
 
   // Load resume on mount
   const [isMounted, setIsMounted] = useState(false);
+  const [newlyAddedSectionId, setNewlyAddedSectionId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
     fetchResume();
   }, []);
+
+  // Auto-scroll to newly added section
+  useEffect(() => {
+    if (newlyAddedSectionId) {
+      // Small timeout to allow DOM to update
+      setTimeout(() => {
+        const element = document.getElementById(`section-${newlyAddedSectionId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Optional: Focus logic could go here if we had a specific input to focus
+        }
+        setNewlyAddedSectionId(null);
+      }, 100);
+    }
+  }, [newlyAddedSectionId, resumeData.sections]);
 
   const fetchResume = async () => {
     try {
@@ -108,37 +118,34 @@ export default function Home() {
     }));
   };
 
-  const addSection = (type: SectionType, title: string) => {
+
+  const addSection = (type: SectionType, title: string, content?: any) => {
+    const newId = crypto.randomUUID();
     const newSection: Section = {
-      id: crypto.randomUUID(),
+      id: newId,
       type,
       title,
       isVisible: true,
-      content: getEmptyContent(type)
+      content: content || getEmptyContent(type)
     };
     setResumeData(prev => ({
       ...prev,
       sections: [...prev.sections, newSection]
     }));
+    setNewlyAddedSectionId(newId);
   };
 
-  const getEmptyContent = (type: SectionType) => {
-    switch (type) {
-      case 'header': return { name: '', phone: '', email: '', linkedin: '', github: '', links: [] };
-      case 'long-text': return { text: '' };
-      case 'standard-list': return { items: [] };
-      case 'detailed-list': return { items: [] };
-      case 'grouped-list': return { groups: [] };
-    }
-  };
+  // getEmptyContent removed - moved to lib/helpers.ts
 
   const deleteSection = (id: string) => {
-    if (confirm('Are you sure you want to delete this section?')) {
-      setResumeData(prev => ({
-        ...prev,
-        sections: prev.sections.filter(s => s.id !== id)
-      }));
-    }
+    setResumeData(prev => ({
+      ...prev,
+      sections: prev.sections.filter(s => s.id !== id)
+    }));
+  };
+
+  const updateSettings = (newSettings: any) => {
+    setResumeData(prev => ({ ...prev, settings: newSettings }));
   };
 
   const saveData = async (shouldGenerate: boolean = false, isAutoSave: boolean = false) => {
@@ -213,7 +220,11 @@ export default function Home() {
 
     switch (section.type) {
       case 'header':
-        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as any} updateContent={updateContent} />;
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="full" />;
+      case 'header-name':
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="name" />;
+      case 'header-contact':
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="contact" />;
       case 'long-text':
         return <LongTextForm title={section.title} onTitleChange={updateTitle} content={section.content as any} updateContent={updateContent} />;
       case 'standard-list':
@@ -232,19 +243,21 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
       <header className="fixed top-0 left-0 right-0 z-30 h-16 bg-emerald-950 text-white flex items-center justify-between px-6 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-xl tracking-tight">paws<span className="text-emerald-500">.</span></span>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-xl tracking-tight">paws<span className="text-emerald-500">.</span></span>
         </div>
+
+        {isMounted && (
+          <div className="flex items-center">
+            <StyleToolbar data={resumeData} onUpdate={updateSettings} />
+          </div>
+        )}
       </header>
 
       <main className="pt-24 pb-12 px-4 sm:px-8 min-h-screen max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* FORMS SECTION (Left) */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* Dynamic sections handle Header now */}
-
+          <div className="lg:col-span-7 space-y-8">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -300,98 +313,77 @@ export default function Home() {
                   );
                 })() : null}
               </DragOverlay>
-            </DndContext>
-
-            {/* ADD SECTION BUTTON */}
-            <Card className="border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-emerald-300 transition-colors cursor-pointer">
-              <CardContent className="p-6 flex justify-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-full w-full py-4 text-emerald-600 hover:text-emerald-700 hover:bg-transparent">
-                      <Plus className="mr-2 h-5 w-5" /> Add New Section
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Choose Template</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => addSection('header', 'Header')}>
-                      Header (Personal Info)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addSection('detailed-list', 'Experience')}>
-                      Detailed List (e.g. Work)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addSection('standard-list', 'Education')}>
-                      Standard List (e.g. Education)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addSection('long-text', 'Summary')}>
-                      Long Text (e.g. Summary)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => addSection('grouped-list', 'Skills')}>
-                      Grouped List (e.g. Skills)
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardContent>
-            </Card>
-          </div>
-
+            </DndContext >
+          </div >
           {/* ACTIONS PANEL (Right, Sticky) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-            <Card className="border-emerald-100 shadow-md">
-              <CardHeader className="bg-emerald-50/50 pb-4 border-b border-emerald-50">
-                <CardTitle className="text-emerald-900 flex items-center gap-2">
-                  <Save className="h-5 w-5 text-emerald-600" />
-                  Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6 space-y-4">
+          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
 
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => saveData(true)}
-                    disabled={isSaving}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200"
-                  >
-                    <RefreshCw className={cn("mr-2 h-4 w-4", isSaving && "animate-spin")} />
-                    {isSaving ? 'Exporting...' : 'Export to LaTeX'}
-                  </Button>
+            {/* FLOATING ACTION ICONS */}
+            <div className="flex items-center gap-3 mb-4 justify-end sticky top-24 z-20">
+              {/* ADD SECTION */}
+              <AddSectionDialog onAdd={addSection} settings={resumeData.settings}>
+                <Button
+                  variant="default"
+                  className="h-12 w-12 rounded-full p-0 flex items-center justify-center shadow-lg transition-transform hover:scale-105 z-20 relative bg-emerald-600 text-white"
+                  title="Add Section"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </AddSectionDialog>
 
-                  <Button
-                    onClick={() => saveData(false)}
-                    disabled={isSaving}
-                    variant="outline"
-                    className={cn(
-                      "w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-all duration-300",
-                      saveStatus === 'saved' && "bg-emerald-50 text-emerald-800 border-emerald-300",
-                      saveStatus === 'saving' && "opacity-80"
-                    )}
-                  >
-                    {saveStatus === 'saving' ? (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : saveStatus === 'saved' ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Saved
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="mr-2 h-4 w-4" />
-                        Save Draft
-                      </>
-                    )}
-                  </Button>
-                </div>
+              {/* SAVE & EXPORT */}
+              <Button
+                onClick={() => saveData(true)}
+                disabled={isSaving}
+                variant="outline"
+                className="h-12 w-12 rounded-full p-0 flex items-center justify-center shadow-lg transition-transform hover:scale-105 z-20 relative bg-white border-emerald-200 hover:bg-emerald-50 text-emerald-600"
+                title="Save & Export PDF"
+              >
+                {isSaving ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+              </Button>
 
-                <div className="pt-4 border-t border-slate-100 text-xs text-slate-400 text-center">
-                  {saveStatus === 'saving' ? 'Saving changes...' : 'Edits are auto-saved to draft.'}
-                </div>
-              </CardContent>
-            </Card>
+              {/* COPY LATEX */}
+              <Button
+                onClick={async () => {
+                  setIsSaving(true);
+                  try {
+                    // Save first
+                    await saveData(false, true);
+                    // Fetch Source
+                    const res = await fetch('/api/generate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ...resumeData, returnSource: true })
+                    });
+                    const data = await res.json();
+                    if (data.latex) {
+                      await navigator.clipboard.writeText(data.latex);
+                      alert("LaTeX code copied to clipboard!");
+                    } else {
+                      throw new Error("No LaTeX returned");
+                    }
+                  } catch (e) {
+                    console.error(e);
+                    alert("Failed to copy LaTeX code.");
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                variant="outline"
+                className="h-12 w-12 rounded-full p-0 flex items-center justify-center shadow-lg transition-transform hover:scale-105 z-20 relative bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+                title="Copy LaTeX Code"
+              >
+                <Copy className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* LIVE PREVIEW */}
+            <div className="mb-6">
+              <LiveResumePreview data={resumeData} />
+            </div>
+
           </div>
-
         </div>
       </main>
     </div>

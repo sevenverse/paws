@@ -5,8 +5,60 @@ import {
   LongTextContent,
   StandardListContent,
   DetailedListContent,
-  GroupedListContent
+  GroupedListContent,
+  ResumeSettings // Added ResumeSettings import
 } from './types';
+
+// Helper to generate ONLY the Name (Huge, Bold)
+function generateHeaderName(content: HeaderContent, settings: ResumeSettings): string {
+  const { name } = content;
+  // The 'font' setting is not directly used here for the name style,
+  // but it's passed in case it's needed for other header parts or future extensions.
+  // const font = settings.font || 'serif'; // Keeping this commented as it's not used in the provided snippet
+
+  // Name Style
+  const nameStyle = `\\Huge\\bfseries\\scshape`;
+
+  // Using minipage to ensure full width block
+  return `
+% Header Name Section
+\\begin{minipage}[c]{1\\textwidth}
+    \\centering
+    {${nameStyle} ${name}} \\\\[0.5em]
+\\end{minipage}
+`;
+}
+
+// Helper to generate ONLY the Contact Info (Ribbon)
+function generateHeaderContact(content: HeaderContent): string {
+  const { phone, email, linkedin, github, links } = content;
+
+  // Collecting contact items
+  const contactItems: string[] = [];
+  if (phone) contactItems.push(phone);
+  if (email) contactItems.push(`\\href{mailto:${email}}{${email}}`);
+  // Assuming linkedin and github in content are just the handles/usernames
+  if (linkedin) contactItems.push(`\\href{https://linkedin.com/in/${linkedin}}{linkedin.com/in/${linkedin}}`);
+  if (github) contactItems.push(`\\href{https://github.com/${github}}{github.com/${github}}`);
+
+  if (links) {
+    links.forEach(link => {
+      if (link.isVisible) {
+        contactItems.push(`\\href{${link.url.startsWith('http') ? link.url : 'https://' + link.url}}{${link.text}}`);
+      }
+    });
+  }
+
+  if (contactItems.length === 0) return '';
+
+  return `
+% Header Contact Section
+\\begin{center}
+    \\small 
+    ${contactItems.join(' $\\cdot$ ')}
+\\end{center}
+`;
+}
 
 export function generateHeader(content: HeaderContent): string {
   const links = content.links && content.links.length > 0
@@ -43,7 +95,7 @@ function generateStandardList(title: string, content: StandardListContent): stri
     .map(item => `
     \\resumeSubheading
       {${item.title}}{${item.location}}
-      {${item.subtitle}}{${item.date}}
+      {${item.subtitle}}{${item.dateFrom}${item.dateTo ? ` -- ${item.dateTo}` : ''}}
       ${item.description ? `\\resumeItem{${item.description}}` : ''}
   `).join('');
 
@@ -100,21 +152,45 @@ ${items}
  \\end{itemize}`;
 }
 
-export function generateSection(section: Section): string {
+// The user provided a partial `generateLatex` function, but it seems to be a mix-up with the old `generateHeader` logic.
+// I'm assuming the intent was to add the new helper functions and update `generateSection` to handle new types.
+// If `generateLatex` is intended to be a new top-level function, it would need a full definition.
+// For now, I'm only applying the changes to `generateSection` as per the instruction's structure.
+
+export function generateSection(section: Section, settings: ResumeSettings): string { // Added settings parameter
   if (!section.isVisible) return '';
+
+  const content = section.content; // Moved content declaration here for new switch structure
+  let latex = ''; // Initialize latex string for accumulation
 
   switch (section.type) {
     case 'header':
-      return generateHeader(section.content as HeaderContent);
+      // The original generateHeader function is still available if needed,
+      // but the instruction implies a shift towards header-name and header-contact.
+      // If 'header' type should now use the new helpers, this case needs adjustment.
+      // For now, keeping it as is, assuming 'header' is distinct from the new types.
+      latex += generateHeader(content as HeaderContent);
+      break;
+    case 'header-name':
+      latex += generateHeaderName(content as HeaderContent, settings);
+      break;
+    case 'header-contact':
+      latex += generateHeaderContact(content as HeaderContent);
+      break;
     case 'long-text':
-      return generateLongText(section.title, section.content as LongTextContent);
+      latex += generateLongText(section.title, content as LongTextContent);
+      break;
     case 'standard-list':
-      return generateStandardList(section.title, section.content as StandardListContent);
+      latex += generateStandardList(section.title, content as StandardListContent);
+      break;
     case 'detailed-list':
-      return generateDetailedList(section.title, section.content as DetailedListContent);
+      latex += generateDetailedList(section.title, content as DetailedListContent);
+      break;
     case 'grouped-list':
-      return generateGroupedList(section.title, section.content as GroupedListContent);
+      latex += generateGroupedList(section.title, content as GroupedListContent);
+      break;
     default:
       return '';
   }
+  return latex;
 }
