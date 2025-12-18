@@ -20,7 +20,51 @@
       }
     ]
   },
-  "sections": [],
+  "sections": [
+    {
+      "id": "6dc77fc0-c00d-4fc9-969f-e18cb43f4fd9",
+      "type": "header",
+      "title": "Personal Details",
+      "isVisible": true,
+      "content": {
+        "name": "First Last",
+        "phone": "123-456-7890",
+        "email": "email@example.com",
+        "linkedin": "",
+        "github": "",
+        "links": []
+      }
+    },
+    {
+      "id": "920eda13-6110-4391-93c9-448d119e5017",
+      "type": "grouped-list",
+      "title": "Skills",
+      "isVisible": true,
+      "content": {
+        "groups": [
+          {
+            "id": "406d849c-323d-4b32-9476-f242360b5d06",
+            "category": "Tech Skills",
+            "items": [
+              {
+                "name": "fghjkl",
+                "isVisible": true
+              },
+              {
+                "name": "dghdf",
+                "isVisible": true
+              },
+              {
+                "name": "shdnfm",
+                "isVisible": true
+              }
+            ],
+            "isVisible": true
+          }
+        ]
+      }
+    }
+  ],
   "settings": {
     "font": "serif",
     "fontSize": "10pt",
