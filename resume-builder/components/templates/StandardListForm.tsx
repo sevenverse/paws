@@ -52,7 +52,7 @@ export function StandardListForm({ title, onTitleChange, content, updateContent 
                                     <div className="text-xs text-slate-500">{item.subtitle}</div>
                                 </div>
                                 <div className="text-xs text-slate-400 italic">
-                                    {item.date}
+                                    {item.dateFrom} - {item.dateTo}
                                 </div>
                             </div>
                         ))}
