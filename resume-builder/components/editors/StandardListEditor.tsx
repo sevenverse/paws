@@ -2,7 +2,7 @@ import { StandardListContent } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface StandardListEditorProps {
@@ -42,11 +42,7 @@ export function StandardListEditor({ content, onChange }: StandardListEditorProp
         updateItems(content.items.filter((_, i) => i !== index));
     };
 
-    const toggleItemVisibility = (index: number) => {
-        const newItems = [...content.items];
-        newItems[index].isVisible = !newItems[index].isVisible;
-        updateItems(newItems);
-    };
+
 
     return (
         <div className="space-y-6">
@@ -60,20 +56,9 @@ export function StandardListEditor({ content, onChange }: StandardListEditorProp
                 {content.items.map((item, index) => (
                     <div
                         key={item.id}
-                        className="relative space-y-4 rounded-lg border p-4 bg-white shadow-sm"
+                        className="relative space-y-4 rounded-lg border border-slate-200 p-4 bg-slate-50 shadow-sm"
                     >
                         <div className="absolute right-2 top-2 flex gap-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => toggleItemVisibility(index)}
-                                className={cn(
-                                    "h-8 w-8",
-                                    item.isVisible !== false ? "text-emerald-600 hover:text-emerald-700" : "text-slate-400"
-                                )}
-                            >
-                                {item.isVisible !== false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </Button>
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -86,11 +71,11 @@ export function StandardListEditor({ content, onChange }: StandardListEditorProp
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 pr-16">
                             <div className="space-y-1">
-                                <Label>Title (e.g. School, Exam)</Label>
-                                <Input value={item.title} onChange={(e) => handleChange(index, 'title', e.target.value)} />
+                                <Label>Title (e.g. School, Exam) <span className="text-red-500">*</span></Label>
+                                <Input value={item.title} onChange={(e) => handleChange(index, 'title', e.target.value)} placeholder="e.g. Harvard University" />
                             </div>
                             <div className="space-y-1">
-                                <Label>Subtitle (e.g. Degree)</Label>
+                                <Label>Subtitle (e.g. Degree) <span className="text-red-500">*</span></Label>
                                 <Input value={item.subtitle} onChange={(e) => handleChange(index, 'subtitle', e.target.value)} />
                             </div>
                             <div className="col-span-1 md:col-span-2 space-y-1">
@@ -98,11 +83,11 @@ export function StandardListEditor({ content, onChange }: StandardListEditorProp
                                 <Input value={item.location} onChange={(e) => handleChange(index, 'location', e.target.value)} />
                             </div>
                             <div className="space-y-1">
-                                <Label>From Date</Label>
+                                <Label>From Date <span className="text-red-500">*</span></Label>
                                 <Input value={item.dateFrom} onChange={(e) => handleChange(index, 'dateFrom', e.target.value)} placeholder="e.g. 2020" />
                             </div>
                             <div className="space-y-1">
-                                <Label>To Date</Label>
+                                <Label>To Date <span className="text-red-500">*</span></Label>
                                 <Input value={item.dateTo} onChange={(e) => handleChange(index, 'dateTo', e.target.value)} placeholder="e.g. Present" />
                             </div>
                             <div className="col-span-1 md:col-span-2 space-y-1">

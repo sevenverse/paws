@@ -1,4 +1,7 @@
 import {
+  formatUrl
+} from './helpers';
+import {
   ResumeData,
   Section,
   HeaderContent,
@@ -6,7 +9,7 @@ import {
   StandardListContent,
   DetailedListContent,
   GroupedListContent,
-  ResumeSettings // Added ResumeSettings import
+  ResumeSettings
 } from './types';
 
 // Helper to generate ONLY the Name (Huge, Bold)
@@ -37,14 +40,16 @@ function generateHeaderContact(content: HeaderContent): string {
   const contactItems: string[] = [];
   if (phone) contactItems.push(phone);
   if (email) contactItems.push(`\\href{mailto:${email}}{${email}}`);
-  // Assuming linkedin and github in content are just the handles/usernames
-  if (linkedin) contactItems.push(`\\href{https://linkedin.com/in/${linkedin}}{linkedin.com/in/${linkedin}}`);
-  if (github) contactItems.push(`\\href{https://github.com/${github}}{github.com/${github}}`);
+  if (email) contactItems.push(`\\href{mailto:${email}}{${email}}`);
+
+  // Standardized Social Links
+  if (linkedin) contactItems.push(`\\href{${formatUrl(linkedin)}}{LinkedIn}`);
+  if (github) contactItems.push(`\\href{${formatUrl(github)}}{GitHub}`);
 
   if (links) {
     links.forEach(link => {
       if (link.isVisible) {
-        contactItems.push(`\\href{${link.url.startsWith('http') ? link.url : 'https://' + link.url}}{${link.text}}`);
+        contactItems.push(`\\href{${formatUrl(link.url)}}{${link.text}}`);
       }
     });
   }
@@ -61,15 +66,17 @@ function generateHeaderContact(content: HeaderContent): string {
 }
 
 export function generateHeader(content: HeaderContent): string {
-  const links = content.links && content.links.length > 0
-    ? content.links.filter(l => l.isVisible)
-    : [
-      content.linkedin ? { text: content.linkedin, url: `https://${content.linkedin}`, isVisible: true } : null,
-      content.github ? { text: content.github, url: `https://${content.github}`, isVisible: true } : null
-    ].filter(l => l !== null);
+  const explicitLinks = content.links ? content.links.filter(l => l.isVisible) : [];
+
+  const socialLinks = [
+    (content.linkedin && content.linkedinVisible !== false) ? { text: 'LinkedIn', url: formatUrl(content.linkedin), isVisible: true } : null,
+    (content.github && content.githubVisible !== false) ? { text: 'GitHub', url: formatUrl(content.github), isVisible: true } : null
+  ].filter(l => l !== null);
+
+  const links = [...socialLinks, ...explicitLinks];
 
   const linkStrings = links.map(link =>
-    `\\href{${link?.url.startsWith('http') ? link.url : 'https://' + link?.url}}{\\underline{${link?.text}}}`
+    `\\href{${formatUrl(link?.url || '')}}{\\underline{${link?.text}}}`
   ).join(' $|$ ');
 
   return `\\begin{center}
@@ -117,7 +124,7 @@ function generateDetailedList(title: string, content: DetailedListContent): stri
       return `
     \\resumeSubheading
       {${item.title}}{${item.location}}
-      {${item.subtitle}}{${item.date}}
+      {${item.subtitle}}{${item.dateFrom} -- ${item.dateTo}}
       \\begin{itemize}
 ${points}
       \\end{itemize}`;

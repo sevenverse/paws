@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { LongTextContent } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EditableSectionTitle } from '@/components/EditableSectionTitle';
 import { AddSectionDialog } from '@/components/AddSectionDialog';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
@@ -22,7 +21,7 @@ export function LongTextForm({ title, onTitleChange, content, updateContent }: L
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>
-                    <EditableSectionTitle value={title} onChange={onTitleChange} />
+                    {title}
                 </CardTitle>
                 <Button
                     variant="ghost"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { SectionType, HeaderContent, DetailedListContent, StandardListContent, GroupedListContent, LongTextContent, ResumeData } from '@/lib/types';
 import { defaultResumeData } from '@/lib/defaults';
+import { formatUrl } from '@/lib/helpers';
 
 interface SectionPreviewProps {
     type: SectionType;
@@ -47,10 +48,10 @@ const ResumeItem = ({ children }: { children: React.ReactNode }) => (
 export const HeaderPreview = ({ content, variant = 'full' }: { content: HeaderContent, variant?: 'full' | 'name' | 'contact' }) => {
     const links = content.links?.filter(l => l.isVisible) || [];
     const linkText = [
-        content.email && <span key="email" className="underline">{content.email}</span>,
-        content.linkedin && <span key="linkedin" className="underline">{content.linkedin.replace('https://', '')}</span>,
-        content.github && <span key="github" className="underline">{content.github.replace('https://', '')}</span>,
-        ...links.map(l => <span key={l.id} className="underline">{l.text}</span>)
+        content.email && <a key="email" href={`mailto:${content.email}`} className="underline">{content.email}</a>,
+        (content.linkedin && content.linkedinVisible !== false) && <a key="linkedin" href={formatUrl(content.linkedin)} target="_blank" rel="noreferrer" className="underline">LinkedIn</a>,
+        (content.github && content.githubVisible !== false) && <a key="github" href={formatUrl(content.github)} target="_blank" rel="noreferrer" className="underline">GitHub</a>,
+        ...links.map(l => <a key={l.id} href={formatUrl(l.url)} target="_blank" rel="noreferrer" className="underline">{l.text}</a>)
     ].filter(Boolean);
 
     const showName = variant === 'full' || variant === 'name';
@@ -82,21 +83,25 @@ export const DetailedListPreview = ({ title, content }: { title: string, content
     <div>
         <SectionTitle>{title}</SectionTitle>
         <div className="space-y-3">
-            {content.items.map((item, idx) => (
-                <div key={idx}>
-                    <SubHeading
-                        title={item.title}
-                        location={item.location}
-                        subtitle={item.subtitle}
-                        date={item.date}
-                    />
-                    <ul className="list-none pl-4 space-y-0.5 mt-1">
-                        {item.points.map((p, pIdx) => (
-                            <ResumeItem key={pIdx}>{p.text}</ResumeItem>
-                        ))}
-                    </ul>
-                </div>
-            ))}
+            {content.items
+                .filter(item => item.isVisible !== false)
+                .map((item, idx) => (
+                    <div key={idx}>
+                        <SubHeading
+                            title={item.title}
+                            location={item.location}
+                            subtitle={item.subtitle}
+                            date={`${item.dateFrom} -- ${item.dateTo}`}
+                        />
+                        <ul className="list-none pl-4 space-y-0.5 mt-1">
+                            {item.points
+                                .filter(p => p.isVisible !== false)
+                                .map((p, pIdx) => (
+                                    <ResumeItem key={pIdx}>{p.text}</ResumeItem>
+                                ))}
+                        </ul>
+                    </div>
+                ))}
         </div>
     </div>
 );
@@ -105,21 +110,23 @@ export const StandardListPreview = ({ title, content }: { title: string, content
     <div>
         <SectionTitle>{title}</SectionTitle>
         <div className="space-y-2">
-            {content.items.map((item, idx) => (
-                <div key={idx}>
-                    <SubHeading
-                        title={item.title}
-                        location={item.location}
-                        subtitle={item.subtitle}
-                        date={`${item.dateFrom}${item.dateTo ? ` – ${item.dateTo}` : ''}`}
-                    />
-                    {item.description && (
-                        <div className="text-sm pl-0">
-                            {item.description}
-                        </div>
-                    )}
-                </div>
-            ))}
+            {content.items
+                .filter(item => item.isVisible !== false)
+                .map((item, idx) => (
+                    <div key={idx}>
+                        <SubHeading
+                            title={item.title}
+                            location={item.location}
+                            subtitle={item.subtitle}
+                            date={`${item.dateFrom}${item.dateTo ? ` – ${item.dateTo}` : ''}`}
+                        />
+                        {item.description && (
+                            <div className="text-sm pl-0">
+                                {item.description}
+                            </div>
+                        )}
+                    </div>
+                ))}
         </div>
     </div>
 );
@@ -128,12 +135,19 @@ export const GroupedListPreview = ({ title, content }: { title: string, content:
     <div>
         <SectionTitle>{title}</SectionTitle>
         <ul className="list-none pl-4 text-sm space-y-1">
-            {content.groups.map((group, idx) => (
-                <li key={idx}>
-                    <span className="font-bold">{group.category}: </span>
-                    <span>{group.items.map(i => i.name).join(', ')}</span>
-                </li>
-            ))}
+            {content.groups
+                .filter(group => group.isVisible !== false)
+                .map((group, idx) => {
+                    const visibleItems = group.items.filter(item => item.isVisible !== false);
+                    if (visibleItems.length === 0) return null;
+
+                    return (
+                        <li key={idx}>
+                            <span className="font-bold">{group.category}: </span>
+                            <span>{visibleItems.map(i => i.name).join(', ')}</span>
+                        </li>
+                    );
+                })}
         </ul>
     </div>
 );
@@ -231,3 +245,4 @@ function getEmptyContent(type: SectionType) {
     }
     return {};
 }
+

@@ -22,40 +22,58 @@
   },
   "sections": [
     {
-      "id": "6dc77fc0-c00d-4fc9-969f-e18cb43f4fd9",
+      "id": "081b7692-80dc-4b77-8b88-ab4cd54d4d92",
       "type": "header",
       "title": "Personal Details",
       "isVisible": true,
       "content": {
-        "name": "First Last",
-        "phone": "123-456-7890",
-        "email": "email@example.com",
-        "linkedin": "",
-        "github": "",
-        "links": []
+        "name": "Jane",
+        "phone": "987654321",
+        "email": "jane@jane.co ",
+        "linkedin": "sdfgh",
+        "github": "dfghj",
+        "links": [],
+        "githubVisible": true,
+        "linkedinVisible": true
       }
     },
     {
-      "id": "920eda13-6110-4391-93c9-448d119e5017",
-      "type": "grouped-list",
-      "title": "Skills",
+      "id": "b371525b-0e73-40dc-baff-ba736ef5ad5b",
+      "type": "standard-list",
+      "title": "",
       "isVisible": true,
       "content": {
-        "groups": [
+        "items": [
           {
-            "id": "406d849c-323d-4b32-9476-f242360b5d06",
-            "category": "Tech Skills",
-            "items": [
+            "id": "4311ddf8-07a6-4858-98e9-782b9cfff872",
+            "title": "fds",
+            "subtitle": "fdsa",
+            "dateFrom": "543",
+            "dateTo": "543",
+            "location": "fds",
+            "description": "",
+            "isVisible": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "d98d7e55-bd8b-4e43-a20e-b8decb256a4d",
+      "type": "detailed-list",
+      "title": "eghjk",
+      "isVisible": true,
+      "content": {
+        "items": [
+          {
+            "id": "93fa2c20-8351-4d40-a071-3342d79e0d81",
+            "title": "dsa",
+            "subtitle": "dsa",
+            "dateFrom": "dsa",
+            "dateTo": "fdsa",
+            "location": "",
+            "points": [
               {
-                "name": "fghjkl",
-                "isVisible": true
-              },
-              {
-                "name": "dghdf",
-                "isVisible": true
-              },
-              {
-                "name": "shdnfm",
+                "text": "hjk",
                 "isVisible": true
               }
             ],
@@ -66,7 +84,7 @@
     }
   ],
   "settings": {
-    "font": "serif",
+    "font": "roboto",
     "fontSize": "10pt",
     "margin": 0.75,
     "paperSize": "letterpaper",

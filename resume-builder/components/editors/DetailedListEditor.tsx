@@ -2,7 +2,7 @@ import { DetailedListContent } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, PlusCircle, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Plus, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DetailedListEditorProps {
@@ -28,11 +28,7 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
         updateItems(newItems);
     };
 
-    const togglePointVisibility = (itemIndex: number, pointIndex: number) => {
-        const newItems = [...content.items];
-        newItems[itemIndex].points[pointIndex].isVisible = !newItems[itemIndex].points[pointIndex].isVisible;
-        updateItems(newItems);
-    };
+
 
     const addPoint = (itemIndex: number) => {
         const newItems = [...content.items];
@@ -54,7 +50,8 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
                 title: '',
                 subtitle: '',
                 location: '',
-                date: '',
+                dateFrom: '',
+                dateTo: '',
                 points: [{ text: '', isVisible: true }],
                 isVisible: true
             },
@@ -65,11 +62,7 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
         updateItems(content.items.filter((_, i) => i !== index));
     };
 
-    const toggleItemVisibility = (index: number) => {
-        const newItems = [...content.items];
-        newItems[index].isVisible = !newItems[index].isVisible;
-        updateItems(newItems);
-    };
+
 
     return (
         <div className="space-y-6">
@@ -83,20 +76,9 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
                 {content.items.map((item, index) => (
                     <div
                         key={item.id}
-                        className="relative space-y-4 rounded-lg border p-4 bg-white shadow-sm"
+                        className="relative space-y-4 rounded-lg border border-slate-200 p-4 bg-slate-50 shadow-sm"
                     >
                         <div className="absolute right-2 top-2 flex gap-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => toggleItemVisibility(index)}
-                                className={cn(
-                                    "h-8 w-8",
-                                    item.isVisible !== false ? "text-emerald-600 hover:text-emerald-700" : "text-slate-400"
-                                )}
-                            >
-                                {item.isVisible !== false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                            </Button>
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -109,20 +91,24 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 pr-16">
                             <div className="space-y-1">
-                                <Label>Title (e.g. Company, Project)</Label>
-                                <Input value={item.title} onChange={(e) => handleChange(index, 'title', e.target.value)} />
+                                <Label>Title (e.g. Company, Project) <span className="text-red-500">*</span></Label>
+                                <Input value={item.title} onChange={(e) => handleChange(index, 'title', e.target.value)} placeholder="e.g. Google" />
                             </div>
                             <div className="space-y-1">
-                                <Label>Subtitle (e.g. Role, Tech)</Label>
+                                <Label>Subtitle (e.g. Role, Tech) <span className="text-red-500">*</span></Label>
                                 <Input value={item.subtitle} onChange={(e) => handleChange(index, 'subtitle', e.target.value)} />
                             </div>
-                            <div className="space-y-1">
+                            <div className="col-span-1 md:col-span-2 space-y-1">
                                 <Label>Location</Label>
                                 <Input value={item.location} onChange={(e) => handleChange(index, 'location', e.target.value)} />
                             </div>
                             <div className="space-y-1">
-                                <Label>Dates</Label>
-                                <Input value={item.date} onChange={(e) => handleChange(index, 'date', e.target.value)} />
+                                <Label>From Date <span className="text-red-500">*</span></Label>
+                                <Input value={item.dateFrom} onChange={(e) => handleChange(index, 'dateFrom', e.target.value)} placeholder="e.g. 2020" />
+                            </div>
+                            <div className="space-y-1">
+                                <Label>To Date <span className="text-red-500">*</span></Label>
+                                <Input value={item.dateTo} onChange={(e) => handleChange(index, 'dateTo', e.target.value)} placeholder="e.g. Present" />
                             </div>
                         </div>
 
@@ -133,17 +119,8 @@ export function DetailedListEditor({ content, onChange }: DetailedListEditorProp
                                     <Input
                                         value={point.text}
                                         onChange={(e) => handlePointChange(index, pIndex, e.target.value)}
-                                        className={cn(point.isVisible === false && "text-slate-400 bg-slate-100")}
+                                        placeholder="e.g. Developed a new feature..."
                                     />
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => togglePointVisibility(index, pIndex)}
-                                        className="h-8 w-8 text-slate-400 hover:text-emerald-600"
-                                        title={point.isVisible !== false ? "Hide point" : "Show point"}
-                                    >
-                                        {point.isVisible !== false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                                    </Button>
                                     <Button variant="ghost" size="icon" onClick={() => removePoint(index, pIndex)}>
                                         <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-500" />
                                     </Button>

@@ -45,6 +45,7 @@ import { AddSectionDialog } from '@/components/AddSectionDialog';
 import { StyleToolbar } from '@/components/StyleToolbar';
 import React from 'react';
 import { LiveResumePreview } from '@/components/LiveResumePreview';
+import { Onboarding } from '@/components/Onboarding';
 
 export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
@@ -54,7 +55,16 @@ export default function Home() {
 
   // Load resume on mount
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [sectionToEdit, setSectionToEdit] = useState<string | null>(null);
   const [newlyAddedSectionId, setNewlyAddedSectionId] = useState<string | null>(null);
+
+  // Ref to access latest resumeData in async callbacks
+  const resumeDataRef = React.useRef(resumeData);
+  useEffect(() => {
+    resumeDataRef.current = resumeData;
+  }, [resumeData]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -77,15 +87,34 @@ export default function Home() {
   }, [newlyAddedSectionId, resumeData.sections]);
 
   const fetchResume = async () => {
-    try {
-      const res = await fetch('/api/resume');
-      if (res.ok) {
-        const data = await res.json();
-        setResumeData(data);
+    const minLoadTime = new Promise(resolve => setTimeout(resolve, 1700));
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/resume');
+        if (res.ok) {
+          return await res.json();
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
+      return null;
+    };
+
+    const [_, data] = await Promise.all([minLoadTime, fetchData()]);
+
+    if (data) {
+      setResumeData(data);
+      // Check if it's a "new" resume (check for empty name in header section)
+      const headerSection = data.sections?.find((s: any) => s.type === 'header');
+      if (!headerSection || !headerSection.content.name) {
+        setShowOnboarding(true);
+      } else {
+        setShowOnboarding(false);
+      }
+    } else {
+      setShowOnboarding(true);
     }
+    setIsLoading(false);
   };
 
   // Auto-save effect
@@ -107,6 +136,40 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [saveStatus, resumeData]);
 
+  const handleOnboardingStart = () => {
+    setShowOnboarding(false);
+    const hasHeader = resumeData.sections.some(s => s.type === 'header');
+    if (!hasHeader) {
+      const newId = addSection('header', 'Personal Details');
+      if (newId) setSectionToEdit(newId);
+    } else {
+      // Focus the first header found
+      const headerId = resumeData.sections.find(s => s.type === 'header')?.id;
+      if (headerId) {
+        setNewlyAddedSectionId(headerId);
+        setSectionToEdit(headerId);
+      }
+    }
+  };
+
+  const handleEditFinished = (sectionId: string) => {
+    // Delay check to allow state updates to propagate
+    setTimeout(() => {
+      // Check if the section is still empty (specifically for Header)
+      const section = resumeDataRef.current.sections.find(s => s.id === sectionId);
+      if (!section) return;
+
+      if (section.type === 'header' || section.type === 'header-name') {
+        const content = section.content as HeaderContent;
+        if (!content.name || content.name.trim() === '') {
+          // If name is empty, delete it and show onboarding
+          deleteSection(sectionId);
+          setShowOnboarding(true);
+        }
+      }
+    }, 100);
+  };
+
   const updateHeader = (newHeader: any) => {
     setResumeData(prev => ({ ...prev, header: newHeader }));
   };
@@ -117,7 +180,6 @@ export default function Home() {
       sections: prev.sections.map(s => s.id === id ? { ...s, ...newSectionPartial } : s)
     }));
   };
-
 
   const addSection = (type: SectionType, title: string, content?: any) => {
     const newId = crypto.randomUUID();
@@ -133,9 +195,8 @@ export default function Home() {
       sections: [...prev.sections, newSection]
     }));
     setNewlyAddedSectionId(newId);
+    return newId;
   };
-
-  // getEmptyContent removed - moved to lib/helpers.ts
 
   const deleteSection = (id: string) => {
     setResumeData(prev => ({
@@ -220,11 +281,11 @@ export default function Home() {
 
     switch (section.type) {
       case 'header':
-        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="full" />;
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="full" triggerEdit={sectionToEdit === section.id} onEditTriggered={() => setSectionToEdit(null)} onDialogClose={() => handleEditFinished(section.id)} />;
       case 'header-name':
-        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="name" />;
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="name" triggerEdit={sectionToEdit === section.id} onEditTriggered={() => setSectionToEdit(null)} onDialogClose={() => handleEditFinished(section.id)} />;
       case 'header-contact':
-        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="contact" />;
+        return <HeaderForm title={section.title} onTitleChange={updateTitle} content={section.content as HeaderContent} updateContent={updateContent} variant="contact" triggerEdit={sectionToEdit === section.id} onEditTriggered={() => setSectionToEdit(null)} onDialogClose={() => handleEditFinished(section.id)} />;
       case 'long-text':
         return <LongTextForm title={section.title} onTitleChange={updateTitle} content={section.content as any} updateContent={updateContent} />;
       case 'standard-list':
@@ -238,10 +299,30 @@ export default function Home() {
     }
   };
 
-  if (!isMounted) return null;
+  if (!isMounted || isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-6 text-center max-w-md">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+          <div className="space-y-3 animate-fade-in">
+            <h2 className="text-2xl font-medium text-slate-800 tracking-wide">
+              Take a <span className="font-bold text-emerald-600">PAWS</span>. for your <span className="font-bold text-emerald-600">RESUME</span>.
+            </h2>
+            <p className="text-sm text-slate-500 italic">— Shyam Prasad V</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
+      {showOnboarding && (
+        <Onboarding
+          onStart={handleOnboardingStart}
+          onImport={() => alert("Resume upload import coming soon!")}
+        />
+      )}
       <header className="fixed top-0 left-0 right-0 z-30 h-16 bg-emerald-950 text-white flex items-center justify-between px-6 shadow-md">
         <div className="flex items-center gap-2">
           <span className="font-bold text-xl tracking-tight">paws<span className="text-emerald-500">.</span></span>
@@ -253,6 +334,7 @@ export default function Home() {
           </div>
         )}
       </header>
+
 
       <main className="pt-24 pb-12 px-4 sm:px-8 min-h-screen max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

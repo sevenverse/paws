@@ -1,7 +1,7 @@
 import { GroupedListContent } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface GroupedListEditorProps {
@@ -18,7 +18,7 @@ export function GroupedListEditor({ content, onChange }: GroupedListEditorProps)
     const addGroup = () => {
         updateGroups([
             ...content.groups,
-            { id: crypto.randomUUID(), category: 'New Category', items: [], isVisible: true }
+            { id: crypto.randomUUID(), category: '', items: [{ name: '', isVisible: true }], isVisible: true }
         ]);
     };
 
@@ -50,11 +50,7 @@ export function GroupedListEditor({ content, onChange }: GroupedListEditorProps)
         updateGroups(newGroups);
     };
 
-    const toggleItemVisibility = (groupIndex: number, itemIndex: number) => {
-        const newGroups = [...content.groups];
-        newGroups[groupIndex].items[itemIndex].isVisible = !newGroups[groupIndex].items[itemIndex].isVisible;
-        updateGroups(newGroups);
-    };
+
 
     return (
         <div className="space-y-8">
@@ -67,11 +63,12 @@ export function GroupedListEditor({ content, onChange }: GroupedListEditorProps)
             {content.groups.map((group, groupIndex) => (
                 <div key={group.id} className="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <div className="flex items-center gap-2">
+                        <span className="text-red-500 font-bold">*</span>
                         <Input
                             value={group.category}
                             onChange={(e) => updateCategory(groupIndex, e.target.value)}
                             className="font-bold text-lg bg-transparent border-none shadow-none focus-visible:ring-0 px-0 h-auto text-emerald-800 placeholder:text-emerald-300 w-full"
-                            placeholder="Category Name"
+                            placeholder="e.g. Languages"
                         />
                         <Button variant="ghost" size="icon" onClick={() => removeGroup(groupIndex)}>
                             <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-500" />
@@ -84,16 +81,19 @@ export function GroupedListEditor({ content, onChange }: GroupedListEditorProps)
                                     value={item.name}
                                     onChange={(e) => updateItem(groupIndex, itemIndex, e.target.value)}
                                     className="h-6 w-32 border-none shadow-none focus-visible:ring-0 bg-transparent px-0 text-sm"
-                                    placeholder="Item Name"
+                                    placeholder="e.g. Python"
+                                    id={`input-${groupIndex}-${itemIndex}`}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            addItem(groupIndex);
+                                            setTimeout(() => {
+                                                const nextInput = document.getElementById(`input-${groupIndex}-${itemIndex + 1}`);
+                                                if (nextInput) nextInput.focus();
+                                            }, 0);
+                                        }
+                                    }}
                                 />
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className={cn("h-6 w-6", item.isVisible !== false ? "text-emerald-500" : "text-slate-300")}
-                                    onClick={() => toggleItemVisibility(groupIndex, itemIndex)}
-                                >
-                                    {item.isVisible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                                </Button>
                                 <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-red-500" onClick={() => removeItem(groupIndex, itemIndex)}>
                                     <Trash2 className="h-3 w-3" />
                                 </Button>

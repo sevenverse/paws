@@ -150,7 +150,7 @@ export function AddSectionDialog({
 
     const handlePresetSelect = (preset: SectionPreset) => {
         setSelectedPreset(preset);
-        setCustomTitle(preset.title);
+        setCustomTitle(['grouped-list', 'standard-list', 'detailed-list'].includes(preset.type) ? '' : preset.title);
         setDraftContent(getEmptyContent(preset.type));
         setStep('edit');
     };
@@ -257,7 +257,7 @@ export function AddSectionDialog({
                                 {/* Header (Title Input - Conditional) */}
                                 {selectedPreset.type !== 'header' && (
                                     <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                                        <label className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2 block">Section Title</label>
+                                        <label className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2 block">Section Title <span className="text-red-500">*</span></label>
                                         <Input
                                             value={customTitle}
                                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomTitle(e.target.value)}
@@ -292,8 +292,31 @@ export function AddSectionDialog({
                                             }
                                             if (selectedPreset.type === 'standard-list') {
                                                 if (!draftContent.items || draftContent.items.length === 0) return true;
-                                                // Validate that at least one item has a title
-                                                if (draftContent.items.some((item: any) => !item.title?.trim())) return true;
+                                                // Validate that all items have required fields
+                                                if (draftContent.items.some((item: any) =>
+                                                    !item.title?.trim() ||
+                                                    !item.subtitle?.trim() ||
+                                                    !item.dateFrom?.trim() ||
+                                                    !item.dateTo?.trim()
+                                                )) return true;
+                                            }
+                                            if (selectedPreset.type === 'detailed-list') {
+                                                if (!draftContent.items || draftContent.items.length === 0) return true;
+                                                // Validate that all items have required fields
+                                                if (draftContent.items.some((item: any) =>
+                                                    !item.title?.trim() ||
+                                                    !item.subtitle?.trim() ||
+                                                    !item.dateFrom?.trim() ||
+                                                    !item.dateTo?.trim()
+                                                )) return true;
+                                            }
+                                            if (selectedPreset.type === 'grouped-list') {
+                                                if (!customTitle?.trim()) return true; // Title required
+                                                if (!draftContent.groups || draftContent.groups.length === 0) return true;
+                                                // Validate that all groups have names and at least one item
+                                                if (draftContent.groups.some((g: any) => !g.category?.trim() || !g.items || g.items.length === 0)) return true;
+                                                // Validate that all items have names
+                                                if (draftContent.groups.some((g: any) => g.items.some((i: any) => !i.name?.trim()))) return true;
                                             }
                                             return false;
                                         })()}

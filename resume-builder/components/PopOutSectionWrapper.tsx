@@ -63,7 +63,7 @@ export function PopOutSectionWrapper({
 
             {/* Main Content Area - z-20 to sit ON TOP of the gutter */}
             <div className={cn(
-                "relative z-20 bg-white transition-all duration-300 rounded-lg overflow-hidden", // Added overflow-hidden
+                "relative z-20 transition-all duration-300 rounded-2xl",
                 !isVisible && "grayscale pointer-events-none select-none",
             )}>
                 {children}
@@ -71,10 +71,10 @@ export function PopOutSectionWrapper({
 
             {/* Gutter Strip - z-10 to sit BEHIND the card initially, z-30 when confirming to pop OVER */}
             <div className={cn(
-                "absolute top-0 bottom-0 left-0 w-12 bg-emerald-600 rounded-l-lg flex flex-col items-center justify-center gap-4 shadow-sm",
+                "absolute top-0 bottom-0 left-0 w-12 bg-emerald-600 rounded-2xl flex flex-col items-center justify-center gap-4",
                 "transition-all duration-200 ease-out",
                 // Hover: Slide out to the left
-                "transform translate-x-0 group-hover:-translate-x-12",
+                "transform translate-x-0 group-hover:-translate-x-12 group-hover:shadow-sm",
                 // Force open if currently moving (fixes focus loss on reorder)
                 isMoving && "-translate-x-12",
                 // Pop over content when confirming delete OR deleting

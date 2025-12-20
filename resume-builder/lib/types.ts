@@ -40,7 +40,9 @@ export interface HeaderContent {
     phone: string;
     email: string;
     linkedin: string;
+    linkedinVisible?: boolean;
     github: string;
+    githubVisible?: boolean;
     links?: Array<{
         id: string;
         text: string;
@@ -74,7 +76,8 @@ export interface DetailedListContent {
         id: string;
         title: string;       // Company, Project Name
         subtitle: string;    // Role, Technologies
-        date: string;
+        dateFrom: string;
+        dateTo: string;
         location: string;
         points: Array<{ text: string; isVisible: boolean }>;
         isVisible: boolean;

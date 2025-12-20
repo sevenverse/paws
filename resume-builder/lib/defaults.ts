@@ -1,14 +1,6 @@
 import { ResumeData } from './types';
 
 export const defaultResumeData: ResumeData = {
-    header: {
-        name: "First Last",
-        phone: "123-456-7890",
-        email: "email@example.com",
-        linkedin: "linkedin.com/in/username",
-        github: "github.com/username",
-        links: []
-    },
     settings: {
         font: 'serif',
         fontSize: '10pt',
@@ -18,12 +10,26 @@ export const defaultResumeData: ResumeData = {
     },
     sections: [
         {
+            id: "header",
+            type: "header",
+            title: "Personal Details",
+            isVisible: true,
+            content: {
+                name: "",
+                phone: "",
+                email: "",
+                linkedin: "",
+                github: "",
+                links: []
+            }
+        },
+        {
             id: "summary",
             type: "long-text",
             title: "Professional Summary",
             isVisible: true,
             content: {
-                text: "Results-oriented software engineer with expertise in full-stack development. Proven track record of delivering scalable web applications and optimizing system performance. Passionate about learning new technologies and solving complex problems."
+                text: ""
             }
         },
         {
@@ -35,11 +41,11 @@ export const defaultResumeData: ResumeData = {
                 items: [
                     {
                         id: "1",
-                        title: "University Name", // School
-                        subtitle: "Bachelor of Science in Computer Science", // Degree
-                        location: "City, State",
-                        dateFrom: "Aug. 2020",
-                        dateTo: "May 2024",
+                        title: "", // School
+                        subtitle: "", // Degree
+                        location: "",
+                        dateFrom: "",
+                        dateTo: "",
                         isVisible: true,
                     }
                 ]
@@ -54,14 +60,13 @@ export const defaultResumeData: ResumeData = {
                 items: [
                     {
                         id: "1",
-                        title: "Company Name",
-                        location: "City, State",
-                        subtitle: "Software Engineer Intern", // Role
-                        date: "May 2023 -- Aug. 2023",
+                        title: "", // Company
+                        location: "",
+                        subtitle: "", // Role
+                        dateFrom: "",
+                        dateTo: "",
                         points: [
-                            { text: "Developed a full-stack web application using React and Node.js.", isVisible: true },
-                            { text: "Optimized database queries, reducing load times by 30%.", isVisible: true },
-                            { text: "Collaborated with a team of 4 engineers to deliver features on time.", isVisible: true }
+                            { text: "", isVisible: true }
                         ],
                         isVisible: true,
                     }
@@ -77,13 +82,13 @@ export const defaultResumeData: ResumeData = {
                 items: [
                     {
                         id: "1",
-                        title: "Project Name",
+                        title: "", // Project Name
                         location: "",
-                        subtitle: "React, Node.js, MongoDB", // Technologies
-                        date: "June 2023 -- Present",
+                        subtitle: "", // Technologies
+                        dateFrom: "",
+                        dateTo: "",
                         points: [
-                            { text: "Designed and built a scalable platform for X.", isVisible: true },
-                            { text: "Implemented authentication using JWT and OAuth.", isVisible: true }
+                            { text: "", isVisible: true }
                         ],
                         isVisible: true,
                     }
@@ -97,47 +102,11 @@ export const defaultResumeData: ResumeData = {
             isVisible: true,
             content: {
                 groups: [
-                    { id: "g1", category: "Languages", items: [{ name: "Java", isVisible: true }, { name: "Python", isVisible: true }, { name: "JavaScript", isVisible: true }, { name: "SQL", isVisible: true }], isVisible: true },
-                    { id: "g2", category: "Frameworks", items: [{ name: "React", isVisible: true }, { name: "Node.js", isVisible: true }, { name: "Spring Boot", isVisible: true }], isVisible: true },
-                    { id: "g3", category: "Developer Tools", items: [{ name: "Git", isVisible: true }, { name: "Docker", isVisible: true }, { name: "AWS", isVisible: true }, { name: "Linux", isVisible: true }], isVisible: true }
-                ]
-            }
-        },
-        {
-            id: "achievements",
-            type: "standard-list",
-            title: "Achievements",
-            isVisible: true,
-            content: {
-                items: [
                     {
                         id: "1",
-                        title: "Hackathon Winner",
-                        subtitle: "",
-                        location: "",
-                        dateFrom: "Nov. 2023",
-                        dateTo: "",
-                        description: "Secured 1st place in the Global Tech Hackathon for creating an innovative AI solution.",
-                        isVisible: true,
-                    }
-                ]
-            }
-        },
-        {
-            id: "certifications",
-            type: "standard-list",
-            title: "Certifications",
-            isVisible: true,
-            content: {
-                items: [
-                    {
-                        id: "1",
-                        title: "AWS Certified Solutions Architect", // Name
-                        subtitle: "Associate Level", // Type
-                        location: "Amazon Web Services", // Issuer
-                        dateFrom: "Sep. 2023",
-                        dateTo: "",
-                        isVisible: true,
+                        category: "",
+                        items: [{ name: "", isVisible: true }],
+                        isVisible: true
                     }
                 ]
             }
